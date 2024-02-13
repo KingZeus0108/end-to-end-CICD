@@ -1,0 +1,50 @@
+pipeline {
+    agent {
+        label <label of the agent>
+    }
+
+     environment{
+        APP_NAME = "name of the app we are creating"
+    }
+
+    stages {
+          stage ('Clean workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
+           stage ('checkout from SCM') {
+            steps {
+                git branch: 'main', credentialsId: '<git credential name that is set up in the Jekins UI, under Manage credential>', url: <git link with the Deployment and svc file>
+            }
+        }
+
+            stage ('Update the Deployement Tag') {
+                steps {
+                    script{
+                        """
+                        cat deployment.yaml
+                        sed -i 's/${APP_NAME}.*/${APP_NAME}:${TAG_NAME}/g' deployment.yaml
+                        cat deployment.yaml
+                        """
+                }
+            }
+        }
+
+           stage ('Push the changes to Git') {
+            steps {
+                sh """
+                   git config --global user.name "Kingzeus"
+                   git config --global user.email "Deepak@gmail.com"
+                   git add deployment.yaml
+                   git commit -m "adding the Updated Deployment file"
+                """
+                withCredentials([gitUsernamePassword(credentialsId: 'github-pat', gitToolName: 'Default')]){
+                    git push <git link to 2nd repo> main
+                }
+        }
+
+    }
+           
+}

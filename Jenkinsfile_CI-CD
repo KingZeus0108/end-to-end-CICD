@@ -40,7 +40,7 @@ pipeline {
                    git add deployment.yaml
                    git commit -m "adding the Updated Deployment file"
                 """
-                withCredentials([gitUsernamePassword(credentialsId: 'github-pat', gitToolName: 'Default')]){
+                withCredentials([gitUsernamePassword(credentialsId: 'github', gitToolName: 'Default')]){
                     git push <git link to 2nd repo> main
                 }
         }
